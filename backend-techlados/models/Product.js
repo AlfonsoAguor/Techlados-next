@@ -19,7 +19,8 @@ const ProductSchema = new Schema({
         type: String,
         default: "default.png",
     }],
-    category: [{type: mongoose.Types.ObjectId, ref: 'Category', default: null}],
+    category: {type: mongoose.Types.ObjectId, ref: 'Category', default: null},
+    subCategory: {type: mongoose.Types.ObjectId, ref: 'Category', default: null},
     properties: {type: Object}
 }, {
     timestamps: true,

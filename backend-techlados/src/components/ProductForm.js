@@ -11,14 +11,16 @@ export default function ProductForm({
   _id,
   images: existingImages,
   brand: existingBrand,
-  category: assignedCategory,
+  category: existingCategory,
+  subCategory: existingSubCategory,
   properties: assignedProperties
 }) {
   const router = useRouter();
 
   const [title, setTitle] = useState(existingTitle || "");
   const [description, setDescription] = useState(existingDescription || "");
-  const [category, setCategory] = useState(assignedCategory || '');
+  const [category, setCategory] = useState(existingCategory || "");
+  const [subCategory, setSubCategory] = useState(existingSubCategory || "");
   const [price, setPrice] = useState(existingPrice || "");
   const [selectedBrand, setSelectedBrand] = useState(existingBrand || "");
   const [images, setImages] = useState(existingImages || []);
@@ -57,8 +59,8 @@ export default function ProductForm({
     e.preventDefault();
 
     try {
-      const data = { title, description, price, images, brand, properties: productProperties };
-      data.category = category && category !== "" ? category : null;
+      const data = { title, description, price, images, brands, category, subCategory, properties: productProperties };
+      // data.category = category && category !== "" ? category : null;
 
       if (_id) {
         //Actualizar Producto
@@ -80,34 +82,8 @@ export default function ProductForm({
     setImages(images);
   }
 
-  function setProductProp(propName, value){
-    setProductProperties(prev => {
-      const newProductProps = {...prev};
-      newProductProps[propName] = value;
-      return newProductProps;
-    });
-  }
-
   if (goToProduct) {
     router.push("/products");
-  }
-
-  /* 
-    Creamos un array con el nombre de properties
-    Comprobamos si categories tiene algo (Viene de hacer el get) y tambien category (Viene del select del formulario)
-    Si es asi, hacemos un find donde el _id sea igual al ID de category
-    Por ultimo, guardamos las propiedades de la categoria
-  */
-  const propertiesToFill = [];
-  if (categories.length > 0 && category){
-    let catInfo = categories.find(({_id}) => _id === category);
-    propertiesToFill.push(...catInfo.properties);
-
-    while (catInfo?.parent?._id){
-      const parentCat = categories.find(({_id}) => _id === catInfo?.parent?._id);
-      propertiesToFill.push(...parentCat.properties);
-      catInfo = parentCat;
-    }
   }
 
   return (
@@ -120,28 +96,45 @@ export default function ProductForm({
         onChange={(ev) => setTitle(ev.target.value)}
       ></input>
 
-      <label>Categorias</label>
-      <select value={category} onChange={(e) => setCategory(e.target.value)}>
-        <option value="">Sin categoría</option> {/* Enviará una cadena vacía si no se selecciona nada */}
-        {categories.length > 0 &&
-          categories.map((category) => (
-            <option value={category._id} key={category._id}>
-              {category.name}
-            </option>
-          ))}
-      </select>
+      <label>Categoria padre:</label>
+      <div className="flex flex-row gap-4 items-start mr-4">
+        {categories?.map((cate) =>
+          cate.parent === null && (
+            <div key={cate._id} className="flex items-center">
+              <input
+                type="radio"
+                value={cate._id}
+                checked={category === cate._id} 
+                onChange={() => setCategory(cate._id)}
+                id={`category-${cate._id}`}
+                className="mt-2 mr-2"
+              />
+              <label className="text-black">{cate.name}</label>
+            </div>
+          )
+        )}
+      </div>
 
-
-      {propertiesToFill.length > 0 && propertiesToFill.map(p => (
-        <div className="flex gap-1">
-          <div>{p.name}</div>
-          <select value={productProperties[p.name]} onChange={e => setProductProp(p.name, e.target.value)}>
-            {p.values.map(v => (
-              <option value={v} key={v}>{v}</option>
+      {category.length > 0 && (
+        <div className="my-3">
+          <label>Subcategoria</label>
+          <div className="flex flex-row gap-4 items-start">
+          {categories
+            .filter(c => c.parent?._id === category)
+            .map(sub => (
+              <div key={sub._id}  className="flex items-center">
+                <input 
+                  type="radio" 
+                  className=" mt-2 mr-2" 
+                  value={sub._id}
+                  checked={subCategory === sub._id}
+                  onChange={() => setSubCategory(sub._id)}/>
+                <label className="text-black">{sub.name}</label>
+              </div>
             ))}
-          </select>
+            </div>
         </div>
-      ))}
+      )}
 
       <div className="mb-2">
         <label>Imagenes</label>

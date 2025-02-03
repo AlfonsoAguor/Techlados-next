@@ -81,7 +81,7 @@ export default function BrandForm({
                   id={`category-${category._id}`}
                   className="mt-2 mr-2"
                 />
-                <label htmlFor={`category-${category._id}`} className="text-black">{category.name}</label>
+                <label className="text-black">{category.name}</label>
               </div>
             )
           )}
