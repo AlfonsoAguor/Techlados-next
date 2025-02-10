@@ -2,57 +2,33 @@
 @tailwind components;
 @tailwind utilities;
 
-.btn-submit{
-    @apply px-4 py-2 mt-2 w-full rounded-md font-bold shadow-lg bg-blue-500 text-white hover:bg-blue-700 duration-300
+.titulo{
+    @apply text-2xl
+}
+
+.border-decoration {
+    @apply border-b border-gray-400 my-2
+}
+
+.btn-info{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-blue-500 text-white hover:bg-blue-700 duration-300
+}
+
+.btn-warning{
+    @apply px-4 py-2 mt-2 w-full rounded-md font-bold shadow-lg bg-yellow-500 text-white hover:bg-yellow-700 duration-300
 }
 
 .btn-danger{
     @apply px-4 py-2 mt-2 w-full rounded-md font-bold shadow-lg bg-red-500 text-white hover:bg-red-700 duration-300
 }
 
-input[type="text"],
-input[type="email"],
-input[type="password"]{
-    @apply bg-gray-700 px-4 py-2 block mb-4 w-full rounded-md shadow-lg text-gray-200
-}
-
 .input-default[type="text"],
-.input-default[type="password"]{
-    @apply bg-gray-300 px-4 py-2 block mb-4 w-full rounded-md shadow-lg text-gray-600
+.input-default[type="password"],
+.input-default[type="number"],
+textarea{
+    @apply bg-gray-200 px-4 py-2 block mb-4 mt-2 rounded-md shadow-lg text-gray-600 w-full
 }
 
 .input-default[type="text"]:focus{
     @apply text-gray-800
-}
-
-.border-decoration{
-    @apply border border-gray-600
-}
-
-.submenu{
-    left: 10px;
-    transform: translateX(-40%);
-    top: 100%;
-}
-
-.submenu:before {
-    content: "";
-    width: 0;
-    height: 0;
-    border-left: 20px solid transparent;
-    border-right: 20px solid transparent;
-    border-bottom: 15px solid #6b7280;
-    position: absolute;
-    top: -10px;
-    left: 33%;
-}
-
-@media (max-width: 1024px) {
-    .submenu{
-        transform: translateX(-60%);
-    }
-
-    .submenu:before{
-        left: 54%;
-    }
 }
