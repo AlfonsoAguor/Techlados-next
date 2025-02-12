@@ -1,1 +1,2 @@
-proyecto en desarrolo
+Proyecto de next para Techlados (EN DESARROLLO)
+
