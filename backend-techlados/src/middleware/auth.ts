@@ -5,10 +5,10 @@ import { NextResponse } from "next/server";
 
 // MIDDLEWARE DE AUTENTICACION PARA EL API
 
-export async function authMiddleware(req: Request, params?: {id?: string}) {
+export async function authMiddleware(req: Request, { id }: { id: any }) {
 
     try {
-        
+
     //Sesion del usuario
     const session = await getServerSession(authOptions);
 
@@ -20,16 +20,17 @@ export async function authMiddleware(req: Request, params?: {id?: string}) {
     }
 
     // Si el middleware recibe un id, se valida y se comprueban permisos
-    if (params?.id) {
-      if (!mongoose.Types.ObjectId.isValid(params.id)) {
+    if (id) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         return NextResponse.json(
           { message: "El ID proporcionado no es válido." },
           { status: 400 }
         );
       }
-
+      
       // Verificamos que el id de la sesión coincide con el id proporcionado
-      if (session.user?._id !== params.id) {
+      if (session.user?.id !== id) {
+        console.log("error");
         return NextResponse.json(
           { message: "No tienes permiso para realizar esta acción." },
           { status: 403 }

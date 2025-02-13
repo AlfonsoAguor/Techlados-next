@@ -44,7 +44,7 @@ export const authOptions = {
       if (token.userId) {
         session.user = {
           ...session.user,
-          _id: token.userId,
+          id: token.userId,
         };
       }
       return session;

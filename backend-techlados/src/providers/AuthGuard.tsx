@@ -7,7 +7,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@/context/UserContext";
 
 interface User{
-  _id: string,
+  id: string,
   name: string,
   email: string
 }
@@ -22,7 +22,7 @@ export default function AuthGuard({children}: {children: React.ReactNode}) {
   useEffect(() => {
     if(userSession){
       const fetchUserData = async() => {
-        const res = await axios.get(`/api/user/${userSession?._id}`);
+        const res = await axios.get(`/api/user/${userSession?.id}`);
         setUserData(res.data);
       };
       fetchUserData();

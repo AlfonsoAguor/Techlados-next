@@ -35,3 +35,20 @@ export async function POST(req: Request) {
  
 }
 
+export async function PUT(req: Request) {
+    await connectDB();
+    const body = await req.json();
+
+    try {
+        const { id } = body;
+        const validatedData = categorySchema.parse(body);
+        const { name }  = validatedData;
+        
+        const prodSaved = await Category.findByIdAndUpdate(id, { name });
+        return NextResponse.json({ message: "Categoria creado", data: prodSaved },{ status:200 });
+
+    } catch (error: any) {
+        return NextResponse.json({ error: error.errors }, { status: 400 });
+    }
+ 
+}

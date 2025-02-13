@@ -3,9 +3,10 @@ import { NextResponse } from "next/server";
 import { authMiddleware } from "@/middleware/auth";
 
 export async function GET(req: Request, { params }: { params: { id: string } }) {
-    const { id } = await params;
+    
 
     try {
+        const { id } = await params;
         // Al middleware se le pasa req y el id obtenido de params
         const authResult = await authMiddleware(req, { id: id });
 
@@ -23,6 +24,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         }
         
     } catch (error) {
+        console.error(error);
         return NextResponse.json({ message: "Error fetching user data" }, { status: 500 });
     }
 }
