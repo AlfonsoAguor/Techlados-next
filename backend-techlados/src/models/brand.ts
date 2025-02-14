@@ -6,10 +6,10 @@ const BrandSchema = new Schema({
         type: String,
         require: true,
     },
-    category: {
+    category: [{
         type: mongoose.Types.ObjectId, 
         ref: 'Category',
-    },
+    }],
 },{
     timestamps: true
 });

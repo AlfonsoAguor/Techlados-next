@@ -1,6 +1,6 @@
 import { connectDB } from "@/libs/mongodb";
 import { NextResponse } from "next/server";
-import { Category } from "@/models/category";
+import { Brand } from "@/models/brand";
 import { authMiddleware } from "@/middleware/auth";
 
 
@@ -13,8 +13,8 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
         const authResult = await authMiddleware(req, { id: userId });
 
         if("success" in authResult && authResult?.success){
-            await Category.findByIdAndDelete(id);
-            return NextResponse.json({ message: "Categoria eliminada" }, { status: 200 });
+            await Brand.findByIdAndDelete(id);
+            return NextResponse.json({ message: "Marca eliminada" }, { status: 200 });
         }
 
         return NextResponse.json(authResult);
@@ -35,15 +35,15 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         const authResult = await authMiddleware(req, { id: userId });
 
         if("success" in authResult && authResult?.success){
-            const catFound = await Category.findById(id);
-            return NextResponse.json({ data: catFound }, { status: 200 });
+            const brandFound = await Brand.findById(id);
+            return NextResponse.json({ data: brandFound }, { status: 200 });
         }
 
         return NextResponse.json(authResult);
 
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Error fetching user data" }, { status: 500 });
+        return NextResponse.json({ message: "Error fetching brand data" }, { status: 500 });
     }
 
 }

@@ -17,23 +17,26 @@ export async function GET(req: Request) {
 }
 
 export async function POST(req: Request) {
-    await connectDB();
-    const body = await req.json();
-
     try {
+        await connectDB();
+        const body = await req.json();
         const validatedData = categorySchema.parse(body);
         const { name }  = validatedData;
-        
+
         const prod = new Category({name});
         const prodSaved = await prod.save();
 
-        return NextResponse.json({ message: "Categoria creado", data: prodSaved },{ status:200 });
+        return NextResponse.json({ message: "Categoria creada", data: prodSaved }, { status: 200 });
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.errors }, { status: 400 });
+        console.log(error.errors);
+        return NextResponse.json(
+            { error: error.errors || "Error al crear la categoría" },
+            { status: 400 }
+        );
     }
- 
 }
+
 
 export async function PUT(req: Request) {
     await connectDB();
@@ -48,7 +51,10 @@ export async function PUT(req: Request) {
         return NextResponse.json({ message: "Categoria creado", data: prodSaved },{ status:200 });
 
     } catch (error: any) {
-        return NextResponse.json({ error: error.errors }, { status: 400 });
+        return NextResponse.json(
+            { error: error.errors || "Error al crear la categoría" },
+            { status: 400 }
+        );
     }
  
 }
