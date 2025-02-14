@@ -20,6 +20,7 @@
     "multiparty": "^4.2.3",
     "next": "15.1.4",
     "next-auth": "^4.24.11",
+    "rc-pagination": "^5.1.0",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "sweetalert2": "^11.15.10",
