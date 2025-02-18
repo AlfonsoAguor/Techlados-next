@@ -101,37 +101,36 @@ export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
       </table>
 
       {/* Paginación */}
-      {/*<Pagination
-        className="flex justify-center mt-4 space-x-2"
-        itemRender={(page, type, element) => (
-          <button
-            className={`px-4 py-2 rounded-md ${
-              type === "page" ? "bg-white border border-gray-300" : ""
-            } ${page === currentPage ? "bg-blue-500 text-white" : ""}`}
-          >
-            {element}
-          </button>
-        )}
-        pageSize={countPerPage}
-        onChange={updatePage}
-        current={currentPage}
-        total={data.length}
-      />*/}
+
       <Pagination
-        className="custom-pagination"
+        className="custom-pagination flex gap-5 items-center mt-3 curs"
         pageSize={countPerPage}
         onChange={updatePage}
         current={currentPage}
         total={data.length}
         showPrevNextJumpers={false} // Oculta los botones de salto rápido (primero/último)
         itemRender={(page, type, element) => {
+          /* Boton anterior */
           if (type === "prev") {
-            return <button className="px-4 py-2 rounded-md bg-gray-200">Anterior</button>;
+            return currentPage === 1 ? null : ( 
+            <button className="px-4 py-2 rounded-md bg-gray-200">Anterior</button>
+            )
           }
+
+          /* Boton siguiente */
           if (type === "next") {
-            return <button className="px-4 py-2 rounded-md bg-gray-200">Siguiente</button>;
+            const totalPages = Math.ceil(data.length / countPerPage );
+            return currentPage === totalPages ? null : (
+              <button className="px-4 py-2 rounded-md bg-gray-200">Siguiente</button>
+            )
           }
-          return element; // Muestra los números de página normalmente
+
+          /* Numeros */
+          return <button
+            className={`px-4 py-2 rounded-md ${page === currentPage ? "bg-blue-500 text-white" : "bg-white border border-gray-300"}`}
+          >
+            {element}
+          </button>
         }}
       />
 

@@ -1,13 +1,9 @@
 import { NextResponse } from "next/server";
 import path from "path";
 import { writeFile } from "fs/promises";
-import fs from "fs";
-import User from "@/models/user";
 
 export const POST = async (req: any, res: any) => {
   const formData = await req.formData();
-  const userId = formData.get("userId");
-  const oldAvatar = formData.get("oldAvatar");
 
   const file = formData.get("file");
   if (!file) {
@@ -27,31 +23,15 @@ export const POST = async (req: any, res: any) => {
   }
 
   const filename =  file.name.replaceAll(" ", "_");
-  const uniqueName = `${Date.now()}_${filename}`;
+  const uniqueName = `${filename}`;
   
   try {
     await writeFile(
-      path.join(process.cwd(), "public/avatars/" + uniqueName),
+      path.join(process.cwd(), "public/uploads/" + uniqueName),
       buffer
     );
 
-    if(oldAvatar !== "default.png"){
-
-      const filePath = path.join(process.cwd(), "public/avatars/", oldAvatar);
-
-      fs.unlink(filePath, (err) =>
-        NextResponse.json({message: "No se ha encontrado el archivo", err},{status: 500})
-      )
-      
-    }
-
-    const userUpdated = await User.findByIdAndUpdate(
-      userId,
-      { avatar: uniqueName},
-      { new: true}
-    ).exec();
-
-    return NextResponse.json({ Message: "Avatar actualizado correctamente", status: 201 });
+    return NextResponse.json({ Message: "Avatar actualizado correctamente", files: uniqueName, status: 201 });
   } catch (error: any) {
       if (error.name === 'ValidationError') { 
         const message = Object.values(error.errors).map((err: any) => err.message);
