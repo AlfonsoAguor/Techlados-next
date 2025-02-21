@@ -19,12 +19,16 @@ h2{
     @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-blue-500 text-white hover:bg-blue-700 duration-300
 }
 
+.btn-default{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-gray-400 text-white hover:bg-gray-500 duration-300
+}
+
 .btn-warning{
     @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-yellow-500 text-white hover:bg-yellow-600 duration-300
 }
 
 .btn-danger{
-    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-red-500 text-white hover:bg-red-700 duration-300
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-red-500 text-white hover:bg-red-700 duration-300
 }
 
 .btn-info-outline{
@@ -41,7 +45,7 @@ h2{
 
 /* Estilos Inputs */
 .input-search{
-    @apply px-4 py-2 block mb-4 mt-2 rounded-md shadow-lg text-gray-600
+    @apply px-4 py-2 block mb-4 mt-2 w-1/3 rounded-md shadow-lg text-gray-600
 }
 
 .input-default[type="text"],
@@ -53,6 +57,10 @@ textarea{
 
 .input-default[type="text"]:focus{
     @apply text-gray-800
+}
+
+.input-sin[type="text"]{
+    @apply  px-4 py-2 block rounded-md shadow-lg text-gray-600 w-full
 }
 
 /* Estilos para tabla */

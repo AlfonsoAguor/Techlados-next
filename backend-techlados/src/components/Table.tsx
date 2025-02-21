@@ -14,9 +14,17 @@ export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
   const countPerPage = 5; 
   const [value, setValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
+  
 
   /*Primeramente con 'cloneDeep' obtenemos los primeros 5 resultados que mostrara en el tbody*/
-  const [collection, setCollection] = useState(cloneDeep(data.slice(0, countPerPage))); 
+  const [collection, setCollection] = useState(cloneDeep(data.slice(0, countPerPage)));
+  
+  /* UseEffect para cuando se actualice los datos */
+  useEffect(() => {
+    const to = countPerPage * currentPage;
+    const from = to - countPerPage;
+    setCollection(cloneDeep(data.slice(from, to)));
+  }, [data])
 
   // Función de búsqueda donde utilizamos 'cloneDeep' y 'throttle'
   const searchData = useRef(

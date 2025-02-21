@@ -216,17 +216,13 @@ export default function CategoryPage() {
                 <label className="mb-2">Propiedades</label>
                 <button type="button" className="btn-default text-sm ml-2" onClick={addProperty}>Añadir nueva propiedad</button>
             </div>
-            {properties && (
-                <div className="flex gap-1 mb-1 items-center">
-                  {nameProp && nameProp.map((name, index) => (
-                    <input type="text" className="input-sin" value={name} onChange={e => handlePropertyNameChange(index, e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
-                  ))}
-                  {valueProp && valueProp.map((val, index) => (
-                    <input type="text" className="input-sin" value={val} onChange={e => handlePropertyValuesChange(index, e.target.value)} placeholder="Valores, separado por comas"/>
-                    
-                  ))}
+            {properties && properties.map((property, index) => (
+                <div className="flex gap-1 mb-1 items-center" key={index}>
+                    <input type="text" className="input-sin" value={property.name} onChange={e => handlePropertyNameChange(index, e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
+                    <input type="text" className="input-sin" value={property.values} onChange={e => handlePropertyValuesChange(index, e.target.value)} placeholder="Valores, separado por comas"/>
+                    <button type="button" className="btn-danger" onClick={() =>removeProperty(index)}>Eliminar</button>
                 </div>
-            )}
+            ))}
         </div>
         
         <button type="submit" className="btn-info h-10 mb-4 self-end">

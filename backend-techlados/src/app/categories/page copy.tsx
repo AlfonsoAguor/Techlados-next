@@ -21,9 +21,7 @@ export default function CategoryPage() {
   const [category, setCategory] = useState<any | null>(null);
 
   const [ selectCate, setSelectCate ] = useState<string | ''>('');
-  const [ properties, setProperties ] = useState<Property[]>([]); // Editar
-  const [ nameProp, setNameProp ] = useState<any[]>([]);
-  const [ valueProp, setValueProp ] = useState<any[]>([]);
+  const [ properties, setProperties ] = useState<Property[]>([]);
 
   const [newError, setNewError] = useState<{ path?: string[], message: string }[]>([]);
   const [ showMessage, setShowMessage ] = useState(false);
@@ -144,9 +142,7 @@ export default function CategoryPage() {
 
   /* Funcion para añadir propiedad*/
   function addProperty() {
-    setProperties((prev) => [...prev, { name: "", values: "" }]); // Editar
-    setNameProp((prev) => [...prev, {name: ""}]);
-    setValueProp((prev) => [...prev, {value: ""}]);
+    setProperties((prev) => [...prev, { name: "", values: "" }]);
   }
   
   /* Función para cambiar el nombre de una propiedad */
@@ -155,13 +151,7 @@ export default function CategoryPage() {
       const properties = [...prev];
       properties[index].name = newName;
       return properties;
-    }); //Editar
-    setNameProp((prev) => {
-      const nameProp = [...prev];
-      nameProp[index] = newName;
-      return nameProp;
     });
-
   }
   
   /* Función para cambiar los valores de una propiedad */
@@ -170,23 +160,14 @@ export default function CategoryPage() {
       const properties = [...prev];
       properties[index].values = newValues;
       return properties;
-    }); // Editar
-
-    setValueProp((prev) => {
-      const valueProp = [...prev];
-      valueProp[index] = newValues;
-      return valueProp;
     });
   }
   
   /* Función para eliminar una propiedad */
   function removeProperty(indexToRemove: number) {
     setProperties((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
-    setNameProp((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
-    setValueProp((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
   }
 
-  console.log(nameProp, valueProp);
   return (
     <div>
         {showMessage && newError.map((err) => (
@@ -216,17 +197,13 @@ export default function CategoryPage() {
                 <label className="mb-2">Propiedades</label>
                 <button type="button" className="btn-default text-sm ml-2" onClick={addProperty}>Añadir nueva propiedad</button>
             </div>
-            {properties && (
-                <div className="flex gap-1 mb-1 items-center">
-                  {nameProp && nameProp.map((name, index) => (
-                    <input type="text" className="input-sin" value={name} onChange={e => handlePropertyNameChange(index, e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
-                  ))}
-                  {valueProp && valueProp.map((val, index) => (
-                    <input type="text" className="input-sin" value={val} onChange={e => handlePropertyValuesChange(index, e.target.value)} placeholder="Valores, separado por comas"/>
-                    
-                  ))}
+            {properties && properties.map((property, index) => (
+                <div className="flex gap-1 mb-1 items-center" key={index}>
+                    <input type="text" className="input-sin" value={property.name} onChange={e => handlePropertyNameChange(index, e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
+                    <input type="text" className="input-sin" value={property.values} onChange={e => handlePropertyValuesChange(index, e.target.value)} placeholder="Valores, separado por comas"/>
+                    <button type="button" className="btn-danger" onClick={() =>removeProperty(index)}>Eliminar</button>
                 </div>
-            )}
+            ))}
         </div>
         
         <button type="submit" className="btn-info h-10 mb-4 self-end">
