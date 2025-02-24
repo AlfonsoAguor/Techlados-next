@@ -2,6 +2,7 @@ import { connectDB } from "@/libs/mongodb";
 import { NextResponse } from "next/server";
 import { categorySchema } from "@/schema/categorySchema";
 import { Category } from "@/models/category";
+import { authMiddleware } from "@/middleware/auth";
 
 export async function GET(req: Request) {
     await connectDB();
@@ -21,9 +22,12 @@ export async function POST(req: Request) {
         await connectDB();
         const body = await req.json();
         const validatedData = categorySchema.parse(body);
-        const { name }  = validatedData;
+        const { name,  properties }  = validatedData;
 
-        const prod = new Category({name});
+        const userId = req.headers.get("x-user-id");
+        const authResult = await authMiddleware(req, { id: userId });
+
+        const prod = new Category({name, properties});
         const prodSaved = await prod.save();
 
         return NextResponse.json({ message: "Categoria creada", data: prodSaved }, { status: 200 });
@@ -45,9 +49,12 @@ export async function PUT(req: Request) {
     try {
         const { id } = body;
         const validatedData = categorySchema.parse(body);
-        const { name }  = validatedData;
+        const { name, properties }  = validatedData;
+
+        const userId = req.headers.get("x-user-id");
+        const authResult = await authMiddleware(req, { id: userId });
         
-        const prodSaved = await Category.findByIdAndUpdate(id, { name });
+        const prodSaved = await Category.findByIdAndUpdate(id, { name, properties });
         return NextResponse.json({ message: "Categoria creado", data: prodSaved },{ status:200 });
 
     } catch (error: any) {

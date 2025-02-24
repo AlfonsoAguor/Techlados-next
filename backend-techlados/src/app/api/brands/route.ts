@@ -2,8 +2,6 @@ import { connectDB } from "@/libs/mongodb";
 import { NextResponse } from "next/server";
 import { Brand } from "@/models/brand";
 import { brandSchema } from "@/schema/brandSchema";
-import { date } from "zod";
-
 
 export async function GET(req: Request) {
     await connectDB();

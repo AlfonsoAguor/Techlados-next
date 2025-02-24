@@ -6,6 +6,7 @@ const CategorySchema = new Schema({
         type: String,
         require: true,
     },
+    properties: [{ type: Schema.Types.ObjectId, ref: "Property"}],
 },{
     timestamps: true
 });

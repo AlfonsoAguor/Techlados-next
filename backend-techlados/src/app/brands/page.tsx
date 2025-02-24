@@ -134,7 +134,7 @@ export default function CategoryPage() {
         if (newError.length > 0) {
             setShowMessage(true);
         }
-    }, [newError]);    
+    }, [newError]);  
 
     useEffect(() => {
         if(showMessage){

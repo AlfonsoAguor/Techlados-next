@@ -6,10 +6,8 @@ import Swal from "sweetalert2";
 import { useUser } from "@/context/UserContext";
 import Table from "@/components/Table";
 
-interface Property {
-  name: string;
-  values: string;
-}
+import ChevronUp from "@/components/ChevronUp";
+import ChevronDowns from "@/components/ChevronDown";
 
 export default function CategoryPage() {
   const { userData } = useUser();
@@ -19,16 +17,19 @@ export default function CategoryPage() {
   const [name, setName] = useState("");
   const [catChanged, setCatChanged] = useState(true);
   const [category, setCategory] = useState<any | null>(null);
+  const [ showCatList, setShowCatList ] = useState(false);
+  const [ selectedProp, setSelectedProp ] = useState<string[]>([]);
 
-  const [ selectCate, setSelectCate ] = useState<string | ''>('');
-  const [ properties, setProperties ] = useState<Property[]>([]); // Editar
-  const [ nameProp, setNameProp ] = useState<any[]>([]);
-  const [ valueProp, setValueProp ] = useState<any[]>([]);
-
+  const [ properties, setProperties ] = useState<any[]>([]);
+  const [ property, setProperty ] = useState<any | null>(null);
+  const [ propChanged, setPropChanged] = useState(true);
+  const [ nameProp, setNameProp ] = useState("");
+  const [ valueProp, setValueProp ] = useState("");
+  const [ showPropList, setShowPropList ] = useState(false);
+  
   const [newError, setNewError] = useState<{ path?: string[], message: string }[]>([]);
   const [ showMessage, setShowMessage ] = useState(false);
 
-  /* Fetch de categorias */
   useEffect(() => {
     const fetchCat = async () => {
       try {
@@ -47,16 +48,47 @@ export default function CategoryPage() {
     fetchCat();
   }, [catChanged]);
 
+
+  useEffect(() => {
+    const fetchProp = async () => {
+      try {
+        if (propChanged) {
+          const res = await axios.get("/api/property");
+          const propComma = res.data.data.map((property: any) => {
+            return {
+              ...property,
+              values: property.values.join(",")
+            };
+          });
+
+          setProperties(propComma);
+          setPropChanged(false);
+        }
+      } catch (error) {
+        if (error instanceof AxiosError) {
+          setNewError(error.response?.data.error || []);
+        }
+      }
+    };
+
+    fetchProp();
+  }, [propChanged]);
+
   /* Submit de categorias */
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     if (category && category._id) {
-
+      /* Actualizar */
       try {
-        const data = { name, id: category._id };
-        const res = await axios.put("/api/categories", data);
+        const data = { name, id: category._id, properties: selectedProp };
+        const res = await axios.put("/api/categories", data, {
+          headers: {
+            "X-User-Id": userId,
+          },
+        });
         setCategory([]);
+        setSelectedProp([]);
         setName("");
         setCatChanged(true);
       } catch (error) {
@@ -68,12 +100,15 @@ export default function CategoryPage() {
       }
 
     } else {
-      
+      /* Crear nueva categoria */
       try {
-        const data = { name };
-        const res = await axios.post("/api/categories", data);
-        const dataCat = { catID: res.data.data._id, properties};
-        const resSpe = await axios.post("/api/specific", dataCat);
+        const data = { name, properties: selectedProp };
+        const res = await axios.post("/api/categories", data, {
+          headers: {
+            "X-User-Id": userId,
+          },
+        });
+        setSelectedProp([]);
         setName("");
         setCatChanged(true);
         
@@ -99,6 +134,7 @@ export default function CategoryPage() {
 
     setCategory(result.data.data);
     setName(result.data.data.name);
+    setSelectedProp(result.data.data.properties);
 
     setCatChanged(true);
   };
@@ -131,10 +167,16 @@ export default function CategoryPage() {
     }
   };
 
-  const handleSpec = async() => {
-    console.log("Submit");
-  }
+  /* Funcion para seleccionar categorias */
+  const handleCheckboxChange = (propId: string) => {
+    setSelectedProp((prevSelected) =>
+        prevSelected.includes(propId)
+            ? prevSelected.filter((id) => id !== propId)
+            : [...prevSelected, propId]
+    );
+  };
 
+  /* UseEffect de errores */
   useEffect(() => {
     if(showMessage){
       const timer = setTimeout(() => {setShowMessage(false)}, 2000);
@@ -142,51 +184,94 @@ export default function CategoryPage() {
     }
   },[newError, showMessage]);
 
-  /* Funcion para añadir propiedad*/
-  function addProperty() {
-    setProperties((prev) => [...prev, { name: "", values: "" }]); // Editar
-    setNameProp((prev) => [...prev, {name: ""}]);
-    setValueProp((prev) => [...prev, {value: ""}]);
+  /* Submit de Propiedades */
+  const handleProp = async(e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+
+    const valuesArray = valueProp.split(",").map(value => value.trim());
+
+    try {
+      if(property && property._id){
+        /* Actualizar propiedades */
+        const dataProp = {name: nameProp, values: valuesArray, id: property._id};
+        const resProp = await axios.put("/api/property", dataProp, {
+          headers: {
+            "X-User-Id": userId,
+          },
+        });
+
+        if(resProp.status === 200){
+          setPropChanged(true);
+          setNameProp("");
+          setValueProp("");
+        }
+
+      } else {
+        /* Crear nueva propiedad */
+        const dataProp = {name: nameProp, values: valuesArray};
+        const resProp = await axios.post("/api/property", dataProp, {
+          headers: {
+            "X-User-Id": userId,
+          },
+        });
+        if(resProp.status === 201){
+          setPropChanged(true);
+          setNameProp("");
+          setValueProp("");
+        }
+      }
+      
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        setShowMessage(true);
+        setNewError(error.response?.data.error || "Error desconocido");
+      }
+    }
   }
-  
-  /* Función para cambiar el nombre de una propiedad */
-  function handlePropertyNameChange(index: number, newName: string) {
-    setProperties((prev) => {
-      const properties = [...prev];
-      properties[index].name = newName;
-      return properties;
-    }); //Editar
-    setNameProp((prev) => {
-      const nameProp = [...prev];
-      nameProp[index] = newName;
-      return nameProp;
+
+  /* Get para editar propiedades */
+  const handleEditProp = async (id: any) => {
+    const res = await axios.get(`/api/property/${id}`, {
+      headers: {
+        "X-User-Id": userId,
+      },
     });
+    const propComma = res.data.data.values.join(",");
+    setProperty(res.data.data);
+    setNameProp(res.data.data.name);
+    setValueProp(propComma);
 
-  }
+    setCatChanged(true);
+  };
+
+  /* Eliminar propiedad */
+  const handleDeleteProp = async (id: any) => {
+      const result = await Swal.fire({
+        title: `¿Quieres eliminar la propiedad ${name}?`,
+        showDenyButton: true,
+        denyButtonText: "No",
+        confirmButtonText: "Si, eliminar",
+        customClass: {
+          confirmButton: "swal-confirm",
+          denyButton: "swal-deny",
+        },
+      });
   
-  /* Función para cambiar los valores de una propiedad */
-  function handlePropertyValuesChange(index: number, newValues: string) {
-    setProperties((prev) => {
-      const properties = [...prev];
-      properties[index].values = newValues;
-      return properties;
-    }); // Editar
+      if (result.isConfirmed) {
+        try {
+          const result = await axios.delete(`/api/property/${id}`, {
+            headers: {
+              "X-User-Id": userId,
+            },
+          });
+          setPropChanged(true);
+          Swal.fire({ title: "Propiedad eliminada correctamente" });
+        } catch (error) {
+          Swal.fire({ title: "No se pudo eliminar la propiedad" });
+        }
+      }
+  };
 
-    setValueProp((prev) => {
-      const valueProp = [...prev];
-      valueProp[index] = newValues;
-      return valueProp;
-    });
-  }
-  
-  /* Función para eliminar una propiedad */
-  function removeProperty(indexToRemove: number) {
-    setProperties((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
-    setNameProp((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
-    setValueProp((prev) => prev.filter((_, pIndex) => pIndex !== indexToRemove));
-  }
-
-  console.log(nameProp, valueProp);
   return (
     <div>
         {showMessage && newError.map((err) => (
@@ -195,13 +280,12 @@ export default function CategoryPage() {
             </div>
         ))}
 
+      {/* Formulario para añadir categorias */}
       <h1 className="titulo">Categorias</h1>
       <div className="border-decoration"></div>
-      {/* Formulario para añadir categorias */}
       <form onSubmit={handleSubmit}>
         <div className="w-1/3 flex flex-col">
           <label> Nombre: </label>
-
           <input
             className="input-default"
             type="text"
@@ -211,59 +295,83 @@ export default function CategoryPage() {
           />
         </div>
 
-        <div >
-            <div className="mb-3">
-                <label className="mb-2">Propiedades</label>
-                <button type="button" className="btn-default text-sm ml-2" onClick={addProperty}>Añadir nueva propiedad</button>
-            </div>
-            {properties && (
-                <div className="flex gap-1 mb-1 items-center">
-                  {nameProp && nameProp.map((name, index) => (
-                    <input type="text" className="input-sin" value={name} onChange={e => handlePropertyNameChange(index, e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
-                  ))}
-                  {valueProp && valueProp.map((val, index) => (
-                    <input type="text" className="input-sin" value={val} onChange={e => handlePropertyValuesChange(index, e.target.value)} placeholder="Valores, separado por comas"/>
-                    
-                  ))}
-                </div>
-            )}
+        <div>
+        <label>Seleccione propiedades:</label><br/>
+        {properties.map((property) => (
+          <label key={property._id} className="mr-6">
+            <input
+              type="checkbox"
+              value={property._id}
+              checked={selectedProp.includes(property._id)}
+              onChange={() => handleCheckboxChange(property._id)}
+            />
+            {property.name}
+          </label>
+        ))}
         </div>
-        
+
         <button type="submit" className="btn-info h-10 mb-4 self-end">
-          Guardar
+        {category && category._id ? ("Actualizar") : ("Crear")} categoria
         </button>
       </form>
       
       {/* Formulario para añadir propiedades */}
       <div className="my-5">
-        <h2>Añadir propiedades</h2>
-        <select className="w-5/12 sm:w-1/3 my-2 py-2 rounded-md shadow-md" value={selectCate} onChange={(e) => setSelectCate(e.target.value)}>
-          <option value="">Seleccione categoria</option>
-          {categories.length > 0 && categories.map((category) => (
-            <option value={category._id} key={category._id}>{category.name}</option>
-          ))}
-        </select>
-        {selectCate && (
-          <div>
+        <h1  className="titulo">Propiedades</h1>
+        <div className="border-decoration"></div>
 
+        <form onSubmit={handleProp}>
+          <div className="flex gap-4">
+            <input type="text" className="input-sin w-1/3" value={nameProp} onChange={e => setNameProp(e.target.value)} placeholder="Nombre Propiedad (ej: color)"/>
+            <input type="text" className="input-sin w-2/3" value={valueProp} onChange={e => setValueProp(e.target.value)} placeholder="Valores, separado por comas"/>
+          </div>
+          <button type="submit" className="btn-info h-10 mb-4 self-end">
+            {property && property._id ? ("Actualizar") : ("Crear")} propiedad
+          </button>
+        </form>
+      </div>
+
+      {/* Listado de categorias */}
+      <button onClick={e => setShowCatList(!showCatList)} className={showCatList ? "accordion-active" : "accordion"}>
+        Listado de categorias {showCatList ? (<ChevronDowns/>) : (<ChevronUp />)}
+      </button>
+      <div className={showCatList ? "block" : "hidden"}>
+        {!categories || categories.length === 0 ? (
+          <div className="my-5">No hay categorias</div>
+        ) : (
+          <div>
+              <Table
+              data={categories}
+              columns={[{ key: "name", label: "Nombre" }]}
+              onEdit={handleEdit}
+              onDelete={handleDelete}
+              />
           </div>
         )}
       </div>
 
-      {/* Listado de categorias */}
-      {!categories || categories.length === 0 ? (
-        <div className="my-5">No hay categorias</div>
-      ) : (
-        <div>
-            <h2 className="my-4">Listado de categorias</h2>
-            <Table
-            data={categories}
-            columns={[{ key: "name", label: "Nombre" }]}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
-            />
-        </div>
-      )}
+      {/* Listado de propiedades */}
+      <button onClick={e => setShowPropList(!showPropList)} className={showPropList ? "accordion-active" : "accordion"}>
+        Listado de propiedades {showPropList ? (<ChevronDowns/>) : (<ChevronUp />)}
+      </button>
+      <div className={showPropList ? "block" : "hidden"}>
+        {!properties || properties.length === 0 ? (
+          <div className="my-5">No hay propiedades</div>
+        ) : (
+          <div>
+              <Table
+              data={properties}
+              columns={[
+                { key: "name", label: "Nombre" },
+                { key: "values", label: "Valores"}
+              ]}
+              onEdit={handleEditProp}
+              onDelete={handleDeleteProp}
+              />
+          </div>
+        )}
+      </div>
     </div>
   );
 }
+
