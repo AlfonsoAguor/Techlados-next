@@ -5,4 +5,5 @@ export const productSchema = z.object({
     price: z.string().regex(/^\d+(\.\d{1,2})?$/, "El precio debe ser un número válido"),
     stock: z.string().regex(/^\d+$/, "El stock debe ser un número entero"),
     description: z.string().optional(),
+    specifics: z.string().min(1, "Debes de introducir las especificaciones"),
 });

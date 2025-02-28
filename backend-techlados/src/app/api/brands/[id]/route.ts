@@ -35,7 +35,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         const authResult = await authMiddleware(req, { id: userId });
 
         if("success" in authResult && authResult?.success){
-            const brandFound = await Brand.findById(id);
+            const brandFound = await Brand.findById(id).populate('category');
             return NextResponse.json({ data: brandFound }, { status: 200 });
         }
 

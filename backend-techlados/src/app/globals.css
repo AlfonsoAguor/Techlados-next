@@ -51,6 +51,7 @@ h2{
 .input-default[type="text"],
 .input-default[type="password"],
 .input-default[type="number"],
+select,
 textarea{
     @apply  px-4 py-2 block mb-4 mt-2 rounded-md shadow-lg text-gray-600 w-full
 }

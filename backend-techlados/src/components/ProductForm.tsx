@@ -7,6 +7,7 @@ import { ReactSortable } from 'react-sortablejs';
 export default function ProductForm() {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const [specifics, setSpecifics] = useState('');
   const [price, setPrice] = useState('');
   const [stock, setStock] = useState('');
   const [images, setImages] = useState<any[]>([]);
@@ -14,22 +15,25 @@ export default function ProductForm() {
 
   const [ categories, setCategories ] = useState<any[]>([]);
   const [ brands, setBrands ] = useState<any[]>([]);
+  const [ selectBrand, setSelectBrand ] = useState("");
+  const [ properties, setProperties ] = useState<any[]>([]);
 
+  /* Fetch categorias y marcas */
   useEffect(() => {
     const fetchData = async () => {
       try {
-
-        if(brands.length === 0 && categories.length === 0){
+        if(brands.length === 0 && categories.length === 0 && properties.length === 0){
           const resCat = await axios.get('/api/categories');
           setCategories(resCat.data.data);
           const resBrand = await axios.get('/api/brands');
           setBrands(resBrand.data.data);
+          const resProp = await axios.get('/api/property');
+          setProperties(resProp.data.data);
         }
-
       } catch (error) {
         if (error instanceof AxiosError) {
-                    setNewError(error.response?.data.error || []);
-                }
+          setNewError(error.response?.data.error || []);
+        }
       }
     }
 
@@ -37,6 +41,7 @@ export default function ProductForm() {
     
   }, []);
 
+  /* Funcion crear producto */
   const createProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -47,6 +52,7 @@ export default function ProductForm() {
         description: formData.get('description'),
         price: formData.get('price'),
         stock: formData.get('stock'),
+        specifics: formData.get('specifics'),
       });
       console.log(res);
       setNewError([]); 
@@ -57,6 +63,7 @@ export default function ProductForm() {
     }
   }
 
+  /* Funcion de subida de imagenes */
   const uploadImage = async(e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target?.files || [];
     if(files?.length > 0){
@@ -71,9 +78,12 @@ export default function ProductForm() {
     }
   }
 
+  /* Cambio de orden de las imagenes */
   const updateImagesOrder = async(images:any) => {
     setImages(images);
   }
+
+  console.log(selectBrand);
 
   return (
     <form className='mt-5 w-full' onSubmit={createProduct}>
@@ -102,10 +112,16 @@ export default function ProductForm() {
           )}
         </div>
       </div>
-      
-      <div className='w-2/4'>
-        <label>Descripcion</label>
-        <textarea name='description' className="input-default" value={description} onChange={e => setDescription(e.target.value)} />
+
+      <div className='flex gap-5'>
+        <div className='w-2/4'>
+          <label>Descripcion</label>
+          <textarea name='description' className="input-default" value={description} onChange={e => setDescription(e.target.value)} />
+        </div>
+        <div className='w-2/4'>
+          <label>Especificaciones</label>
+          <textarea name='specifics' className="input-default" value={specifics} onChange={e => setSpecifics(e.target.value)} />
+        </div>
       </div>
 
       {/* Imagenes */}
@@ -138,7 +154,25 @@ export default function ProductForm() {
         {!images?.length && <div>Este producto no tiene fotos</div>}
       </div>
 
-      
+      <div className='flex flex-col w-1/3'>
+        <label>Marcas</label>
+        {brands.length > 0 ? (
+          <select onChange={(e => setSelectBrand(e.target.value))} className='input-default'>
+              <option value={""}>Sin marca</option>
+            {brands.map((brand) => (
+              <option key={brand.id} value={brand._id}>{brand.name}</option>
+            ))}
+          </select>
+        ) : (
+          <span>No hay marcas</span>
+        )}
+
+        <label>Categorias</label>
+        {selectBrand && (
+          
+          <div >sss</div>
+        )}
+      </div>
 
       <button type="submit" className="btn-info w-25">
         Guardar

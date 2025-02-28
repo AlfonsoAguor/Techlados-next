@@ -7,9 +7,9 @@ export async function GET(req: Request) {
     await connectDB();
     
     try {
-        const catFounds = await Brand.find();
+        const brandFounds = await Brand.find();
 
-        return NextResponse.json({data: catFounds});
+        return NextResponse.json({data: brandFounds});
     } catch (error) {
         console.log(error);
         return NextResponse.json({ error: error }, { status: 400 })

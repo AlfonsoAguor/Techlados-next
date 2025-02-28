@@ -24,7 +24,7 @@ const ProductSchema = new Schema({
         type: String,
         default: "default.png",
     }],
-    specifics: [{
+    properties: [{
         type: mongoose.Types.ObjectId,
         ref: 'Specific',
     }],
@@ -33,6 +33,10 @@ const ProductSchema = new Schema({
         ref: 'Brand',
         require: true
     },
+    specifics: {
+        type: String,
+        require: true
+    }
 }, {
     timestamps: true,
 });
