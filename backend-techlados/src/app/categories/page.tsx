@@ -201,6 +201,7 @@ export default function CategoryPage() {
         });
 
         if(resProp.status === 200){
+          setProperty(null);
           setPropChanged(true);
           setNameProp("");
           setValueProp("");
@@ -285,7 +286,7 @@ export default function CategoryPage() {
       <div className="border-decoration"></div>
       <form onSubmit={handleSubmit}>
         <div className="w-1/3 flex flex-col">
-          <label> Nombre: </label>
+          <label className="label-bold"> Nombre: </label>
           <input
             className="input-default"
             type="text"
@@ -296,7 +297,7 @@ export default function CategoryPage() {
         </div>
 
         <div>
-        <label>Seleccione propiedades:</label><br/>
+        <label className="label-bold">Seleccione propiedades:</label><br/>
         {properties.map((property) => (
           <label key={property._id} className="mr-6">
             <input
@@ -304,6 +305,7 @@ export default function CategoryPage() {
               value={property._id}
               checked={selectedProp.includes(property._id)}
               onChange={() => handleCheckboxChange(property._id)}
+              className="mx-1"
             />
             {property.name}
           </label>

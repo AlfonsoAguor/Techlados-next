@@ -35,7 +35,7 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
         const authResult = await authMiddleware(req, { id: userId });
 
         if("success" in authResult && authResult?.success){
-            const catFound = await Category.findById(id);
+            const catFound = await Category.findById(id).populate('properties');
             return NextResponse.json({ data: catFound }, { status: 200 });
         }
 

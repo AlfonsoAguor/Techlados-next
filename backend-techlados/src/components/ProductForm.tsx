@@ -3,20 +3,26 @@
 import React, { FormEvent, useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios';
 import { ReactSortable } from 'react-sortablejs';
+import { useUser } from '@/context/UserContext';
 
 export default function ProductForm() {
+  const { userData } = useUser();
+  const userId = userData?._id;
+
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [specifics, setSpecifics] = useState('');
-  const [price, setPrice] = useState('');
-  const [stock, setStock] = useState('');
   const [images, setImages] = useState<any[]>([]);
   const [newError, setNewError] = useState<{ path?: string[], message: string }[]>([]);
 
   const [ categories, setCategories ] = useState<any[]>([]);
   const [ brands, setBrands ] = useState<any[]>([]);
-  const [ selectBrand, setSelectBrand ] = useState("");
+  const [ catInBrand, setCatInBrand ] = useState<any[]>([]); // Almacenamos las categorias encontradas en la marca seleccionada
+  const [ selectBrand, setSelectBrand ] = useState(""); // Marca seleccionada
   const [ properties, setProperties ] = useState<any[]>([]);
+  const [ propInCat, setPropInCat ] = useState<any[]>([]); // Almacenamos las propiedades de la categoria seleccionada
+  const [ selectedCat, setSelectedCat ] = useState(""); // Categoria Seleccionada
+  const [ selectedVal, setSelectedVal ] = useState<Record<string, string[]>>({});
 
   /* Fetch categorias y marcas */
   useEffect(() => {
@@ -41,22 +47,71 @@ export default function ProductForm() {
     
   }, []);
 
+  /* Fetch de categoria en la marca seleccionada */
+  const fetchBrand = async (id: any) => {
+    
+    const res = await axios.get(`/api/brands/${id}`, {
+      headers: {
+          "X-User-Id": userId,
+      }
+    });
+    setSelectBrand(id); // Guardamos la marca seleccionada
+    setSelectedCat(""); // Eliminamos la categoria seleccionada
+    setSelectedVal({}); // Eliminamos los valores seleccionados
+    setPropInCat([]); // Vaciamos las propiedades de la categoria
+    setCatInBrand(res.data.data.category);
+  }
+
+  /* Fetch de propiedades en la categoria seleccionada */
+  const fetchCategory = async (id: any) => {
+    const res = await axios.get(`/api/categories/${id}`, {
+      headers: {
+           "X-User-Id": userId,
+      }
+    });
+    setSelectedVal({});
+    setSelectedCat(id);
+    setPropInCat([]);
+    setPropInCat(res.data.data.properties);
+  }
+
+  /* Funcion para seleccionar categorias */
+  const handleCheckboxChange = (val: string, name: string) => {
+    setSelectedVal((prevSelected) => {
+      const currentValues = prevSelected[name] || [];
+    
+      return {
+        ...prevSelected,
+        [name]: currentValues.includes(val)
+          ? currentValues.filter((value) => value !== val) 
+          : [...currentValues, val],
+      };
+    });
+  };
+
   /* Funcion crear producto */
   const createProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
 
     try {
-      const res = await axios.post('/api/products', {
+
+      const data = {
         name: formData.get('name'),
         description: formData.get('description'),
-        price: formData.get('price'),
-        stock: formData.get('stock'),
         specifics: formData.get('specifics'),
-      });
-      console.log(res);
+        images,
+        brand: selectBrand,
+        category: selectedCat,
+        properties: selectedVal
+      }
+
+      const res = await axios.post('/api/products', data);
+      console.log("Respuesta: ", res.data);
       setNewError([]); 
+
     } catch (error) {
+      console.error("Error: ", error);
       if (error instanceof AxiosError) {
         setNewError(error.response?.data.error || []);
       }
@@ -83,50 +138,30 @@ export default function ProductForm() {
     setImages(images);
   }
 
-  console.log(selectBrand);
-
   return (
     <form className='mt-5 w-full' onSubmit={createProduct}>
       <div className='flex w-full gap-5'>
         <div className='w-1/3'>
-          <label>Nombre</label>
+          <label className="label-bold">Nombre</label>
           <input type="text" name='name' className="input-default" value={name} onChange={e => setName(e.target.value)} />
           {newError.find(err => err.path?.[0] === "name") && (
             <p className="text-red-500">{newError.find(err => err.path?.[0] === "name")?.message}</p>
           )}
         </div>
-
-        <div className='w-1/5'>
-          <label>Precio</label>
-          <input type="number" name='price' className="input-default" value={price} onChange={e => setPrice(e.target.value)} />
-          {newError.find(err => err.path?.[0] === "price") && (
-            <p className="text-red-500">{newError.find(err => err.path?.[0] === "price")?.message}</p>
-          )}
-        </div>
-
-        <div className='w-1/5'>
-          <label>Stock</label>
-          <input type="number" name='stock' className="input-default" value={stock} onChange={e => setStock(e.target.value)} />
-          {newError.find(err => err.path?.[0] === "stock") && (
-            <p className="text-red-500">{newError.find(err => err.path?.[0] === "stock")?.message}</p>
-          )}
+        <div className='w-2/3'>
+          <label className="label-bold">Descripcion</label>
+          <textarea name='description' className="input-default" value={description} onChange={e => setDescription(e.target.value)} />
         </div>
       </div>
 
-      <div className='flex gap-5'>
-        <div className='w-2/4'>
-          <label>Descripcion</label>
-          <textarea name='description' className="input-default" value={description} onChange={e => setDescription(e.target.value)} />
-        </div>
-        <div className='w-2/4'>
-          <label>Especificaciones</label>
-          <textarea name='specifics' className="input-default" value={specifics} onChange={e => setSpecifics(e.target.value)} />
-        </div>
+      <div className='w-2/4'>
+        <label className="label-bold">Especificaciones</label>
+        <textarea name='specifics' className="input-default" value={specifics} onChange={e => setSpecifics(e.target.value)} />
       </div>
 
       {/* Imagenes */}
-      <div className="mb-2">
-        <label>Imagenes</label>
+      <div className="mb-4">
+        <label className="label-bold">Imagenes</label>
         <div>
         <ReactSortable list={images} setList={updateImagesOrder}>
           {!!images?.length &&
@@ -155,22 +190,55 @@ export default function ProductForm() {
       </div>
 
       <div className='flex flex-col w-1/3'>
-        <label>Marcas</label>
+        <label className="label-bold">Marca</label>
         {brands.length > 0 ? (
-          <select onChange={(e => setSelectBrand(e.target.value))} className='input-default'>
-              <option value={""}>Sin marca</option>
+          <select onChange={(e => fetchBrand(e.target.value))} className='input-default'>
+              <option value={""}>Seleccione marca</option>
             {brands.map((brand) => (
-              <option key={brand.id} value={brand._id}>{brand.name}</option>
+              <option key={brand._id} value={brand._id}>{brand.name}</option>
             ))}
           </select>
         ) : (
           <span>No hay marcas</span>
         )}
+        
+        {/* Mostrar categorias */}
+        {catInBrand && catInBrand.length > 0 &&(
+          <div>
+            <label className="label-bold">Categorias</label>
+            <select onChange={(e => fetchCategory(e.target.value))} className='input-default'>
+              <option value={""}>Seleccione categoria</option>
+              {catInBrand.map((cat) => (
+                <option key={cat._id} value={cat._id}>{cat.name}</option>
+              ))}
+          </select>
+          </div>
+        )}
 
-        <label>Categorias</label>
-        {selectBrand && (
-          
-          <div >sss</div>
+        {/* Mostrar propiedades */}
+        {propInCat && propInCat.length > 0 && (
+          <div>
+            <label className="label-bold">Propiedades</label>
+            {propInCat.map((prop) => (
+              <div key={prop._id} className=" mb-4 mt-2">
+                <label className='underline'>{prop.name}</label>
+                <div className="flex flex-wrap gap-4 mt-2">
+                  {prop.values.map((val:any, i:number) => (
+                    <label key={i} className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      value={val} 
+                      className="form-checkbox h-5 w-5 text-blue-500"
+                      checked={selectedVal[prop.name]?.includes(val) || false}
+                      onChange={() => handleCheckboxChange(val, prop.name)}
+                    />
+                    <span>{val}</span>
+                  </label>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
         )}
       </div>
 

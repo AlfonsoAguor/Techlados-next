@@ -9,9 +9,9 @@ export async function POST(req: Request) {
 
     try {
         const validatedData = productSchema.parse(body);
-        const {name, price, stock, description} = validatedData;
+        const {name, description, specifics, images, brand, category, properties} = validatedData;
         
-        const prod = new Product({name, price, stock, description});
+        const prod = new Product({name, description, specifics, images, brand, category, properties});
         const prodSaved = await prod.save();
 
         return NextResponse.json({ message: "Producto creado", data: prodSaved });

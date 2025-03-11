@@ -18,7 +18,7 @@ export default function CategoryPage() {
     const [ brandChanged, setBrandChanged ] = useState(true);
 
     const [ categories, setCategories ] = useState<any[]>([]);
-    const [selectedCategories, setSelectedCategories] = useState<string[]>([]);
+    const [selectedCategories, setSelectedCategories] = useState<any[]>([]);
 
     const [newError, setNewError] = useState<{ path?: string[], message: string }[]>([]);
     const [ showMessage, setShowMessage ] = useState(false);
@@ -88,7 +88,8 @@ export default function CategoryPage() {
 
         setBrand(result.data.data);
         setName(result.data.data.name);
-        setSelectedCategories(result.data.data.category);
+        // De esta manera almacenamos los _id en un array de objetos
+        setSelectedCategories(result.data.data.category.map((cat: any) => cat._id)); 
 
         setBrandChanged(true);
     }
@@ -143,6 +144,8 @@ export default function CategoryPage() {
         }
       },[newError, showMessage]);
 
+      console.log(brands);
+
   return (
     <div>
         {showMessage && newError.map((err) => (
@@ -157,12 +160,12 @@ export default function CategoryPage() {
 
         <form className="mt-3" onSubmit={handleSubmit}>
             <div className="w-1/3">
-                <label> Nombre: </label>
+                <label className="label-bold"> Nombre: </label>
                 <input className="input-default" type="text" name="name" value={name} onChange={e => setName(e.target.value)} />
             </div>
 
             <div>
-                <label>Selccione las categorias: </label><br />
+                <label className="label-bold">Selccione las categorias: </label><br />
                 {categories?.map((category) => (
                     <label key={category._id} className="mr-6">
                         <input 

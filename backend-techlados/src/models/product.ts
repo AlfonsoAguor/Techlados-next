@@ -7,32 +7,23 @@ const ProductSchema = new Schema({
         required: true,
     },
     description: String,
-    price: {
-        type: Number,
-        required: true
-    },
-    stock: {
-        type: Number,
-        require: true
-    },
-    category: {
-        type: mongoose.Types.ObjectId, 
-        ref: 'Category',
-        require: true
-    },
-    images: [{
-        type: String,
-        default: "default.png",
-    }],
-    properties: [{
-        type: mongoose.Types.ObjectId,
-        ref: 'Specific',
-    }],
     brand: {
         type: mongoose.Types.ObjectId,
         ref: 'Brand',
         require: true
     },
+    category: {
+        type: mongoose.Types.ObjectId, 
+        ref: 'Category',
+    },
+    properties: {
+        type: Map,
+        of: [String], // Le indicamos que puede tener diferentes propiedades con un array de tipo string
+    },
+    images: [{
+        type: String,
+        default: "default.png",
+    }],
     specifics: {
         type: String,
         require: true
