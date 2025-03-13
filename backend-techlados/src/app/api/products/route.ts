@@ -12,9 +12,9 @@ export async function POST(req: Request) {
         const {name, description, specifics, images, brand, category, properties} = validatedData;
         
         const prod = new Product({name, description, specifics, images, brand, category, properties});
-        const prodSaved = await prod.save();
+        //const prodSaved = await prod.save();
 
-        return NextResponse.json({ message: "Producto creado", data: prodSaved });
+        return NextResponse.json({ message: "Producto creado", data: prod});
 
     } catch (error: any) {
         return NextResponse.json({ error: error.errors }, { status: 400 });

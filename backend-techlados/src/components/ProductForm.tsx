@@ -14,6 +14,7 @@ export default function ProductForm() {
   const [specifics, setSpecifics] = useState('');
   const [images, setImages] = useState<any[]>([]);
   const [newError, setNewError] = useState<{ path?: string[], message: string }[]>([]);
+  const [ showMessage, setShowMessage ] = useState(false);
 
   const [ categories, setCategories ] = useState<any[]>([]);
   const [ brands, setBrands ] = useState<any[]>([]);
@@ -107,13 +108,20 @@ export default function ProductForm() {
       }
 
       const res = await axios.post('/api/products', data);
-      console.log("Respuesta: ", res.data);
-      setNewError([]); 
 
+      if(res.status === 200){
+        setName(""); setDescription(""); setSpecifics(""); setImages([]);
+        setSelectBrand(""); setSelectedCat(""); setSelectedVal({});
+        console.log("Respuesta: ", res.data);
+      }
+
+      setNewError([]);
+       
     } catch (error) {
-      console.error("Error: ", error);
+      setShowMessage(true);
       if (error instanceof AxiosError) {
-        setNewError(error.response?.data.error || []);
+        console.log("Nuevo error: ", newError);
+        setNewError(error.response?.data.error || "Error desconocido");
       }
     }
   }
@@ -138,15 +146,27 @@ export default function ProductForm() {
     setImages(images);
   }
 
+  /* UseEffect de errores */
+  useEffect(() => {
+    if(showMessage){
+      const timer = setTimeout(() => {setShowMessage(false)}, 2000);
+      return () => clearTimeout(timer);
+    }
+  },[newError, showMessage]);
+
   return (
     <form className='mt-5 w-full' onSubmit={createProduct}>
+
+      {showMessage && newError.map((err) => (
+          <div key={err.path?.[0] || err.message} className="fixed left-1/2 transform -translate-x-1/2 top-12 bg-red-500 text-white py-3 px-5 rounded-md">
+              {err.message}
+          </div>
+      ))}
+      
       <div className='flex w-full gap-5'>
         <div className='w-1/3'>
           <label className="label-bold">Nombre</label>
           <input type="text" name='name' className="input-default" value={name} onChange={e => setName(e.target.value)} />
-          {newError.find(err => err.path?.[0] === "name") && (
-            <p className="text-red-500">{newError.find(err => err.path?.[0] === "name")?.message}</p>
-          )}
         </div>
         <div className='w-2/3'>
           <label className="label-bold">Descripcion</label>
