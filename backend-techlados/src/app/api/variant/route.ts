@@ -1,9 +1,9 @@
-import { Variant } from "@/models/Variant";
-import { Product } from "@/models/Product";
-import dbConnect from "@/utils/dbConnect";
+import { Variant } from "@/models/variant";
+import { Product } from "@/models/product";
+import { connectDB } from "@/libs/mongodb";
 
 export default async function handler(req, res) {
-    await dbConnect();  // Conectar a la base de datos
+    await connectDB();  // Conectar a la base de datos
 
     if (req.method === "POST") {
         try {

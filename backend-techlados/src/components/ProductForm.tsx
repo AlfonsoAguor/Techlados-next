@@ -4,10 +4,12 @@ import React, { FormEvent, useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios';
 import { ReactSortable } from 'react-sortablejs';
 import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/navigation';
 
 export default function ProductForm() {
   const { userData } = useUser();
   const userId = userData?._id;
+  const router = useRouter();
 
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
@@ -110,9 +112,20 @@ export default function ProductForm() {
       const res = await axios.post('/api/products', data);
 
       if(res.status === 200){
-        setName(""); setDescription(""); setSpecifics(""); setImages([]);
-        setSelectBrand(""); setSelectedCat(""); setSelectedVal({});
-        console.log("Respuesta: ", res.data);
+        /*setName(""); setDescription(""); setSpecifics(""); setImages([]);
+        setSelectBrand(""); setSelectedCat(""); setSelectedVal({});*/
+        let idProd = res.data.data._id;
+
+        const dataVariant = {
+          id: idProd,
+          properties: selectedVal
+        }
+
+        const resVariant = await axios.post('/api/variant/create', dataVariant );
+
+        if(resVariant.status === 200){
+          router.push('/products')
+        }
       }
 
       setNewError([]);
@@ -162,7 +175,7 @@ export default function ProductForm() {
               {err.message}
           </div>
       ))}
-      
+
       <div className='flex w-full gap-5'>
         <div className='w-1/3'>
           <label className="label-bold">Nombre</label>

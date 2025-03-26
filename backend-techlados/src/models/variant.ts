@@ -18,12 +18,13 @@ const VariantSchema = new Schema({
     },
     price: {
         type: Number,
-        required: true
+        required: true,
+        default: 0
     },
-    images: [{
+    /*images: [{
         type: String,
         default: "default.png",
-    }]
+    }]*/
 }, {
     timestamps: true
 });
