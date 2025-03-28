@@ -4,6 +4,7 @@ import React, { FormEvent, useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios';
 import { ReactSortable } from 'react-sortablejs';
 import { useUser } from '@/context/UserContext';
+import { useProduct } from '@/context/ProductContext';
 import { useRouter } from 'next/navigation';
 
 export default function ProductForm() {
@@ -11,6 +12,9 @@ export default function ProductForm() {
   const userId = userData?._id;
   const router = useRouter();
 
+  const { productData, setProductData } = useProduct();
+
+  const [ product, setProduct ] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [specifics, setSpecifics] = useState('');

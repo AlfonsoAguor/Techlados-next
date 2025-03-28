@@ -21,3 +21,16 @@ export async function POST(req: Request) {
     }
  
 }
+
+export async function GET(req: Request) {
+    await connectDB();
+
+    try {
+        const productFound = await Product.find().populate('brand');
+        return NextResponse.json({data: productFound});
+
+    } catch (error) {
+        console.log(error);
+        return NextResponse.json({ error: error }, { status: 400 })
+    }
+}

@@ -54,12 +54,19 @@ export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
     setCollection(cloneDeep(data.slice(from, to)));
   };
 
+  // Funcion para obtener datos anidados
+  // Le pasamos la ruta y la separamos en arrays con el split, y lo va recoriendo con reduce
+  // Ejemplo le indicamos brand.name, en la primera interaccion obtiene brand y luego el name
+  const getNestedValue = (obj: any, path: string) => {
+    return path.split('.').reduce((acc, key) => acc?.[key], obj);
+  };
+
   // Filtra las filas de la tabla según las columnas
   const tableRows = (rowData: any) => {
     return (
       <tr key={rowData._id}>
         {columns.map((col, i) => (
-          <td key={i}>{rowData[col.key]}</td>
+          <td key={i}>{getNestedValue(rowData, col.key)}</td>
         ))}
         {onEdit || onDelete ? (
           <td className="flex gap-4">
