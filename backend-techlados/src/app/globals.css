@@ -36,6 +36,10 @@ h2{
     @apply px-4 py-2 rounded-md font-bold shadow-lg bg-red-500 text-white hover:bg-red-700 duration-300
 }
 
+.btn-success{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-green-500 text-white hover:bg-green-700 duration-300
+}
+
 .btn-info-outline{
     @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-blue-500 text-blue-500 hover:border-blue-700 hover:text-blue-700 hover:bg-gray-100 duration-300
 }
@@ -46,6 +50,10 @@ h2{
 
 .btn-danger-outline{
     @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-red-500 text-red-500 hover:border-red-700 hover:text-red-700 hover:bg-gray-100 duration-300
+}
+
+.btn-success-outline{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-green-500 text-green-500 hover:border-green-700 hover:text-green-700 hover:bg-gray-100 duration-300
 }
 
 /* Estilos Inputs */

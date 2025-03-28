@@ -8,9 +8,10 @@ interface TableProps {
   columns: { key: string; label: string }[];
   onEdit?: (id: string) => void;
   onDelete?: (id: string) => void;
+  onEditVariant?: (id: string) => void;
 }
 
-export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
+export default function Table({ data, columns, onEdit, onDelete, onEditVariant }: TableProps) {
   const countPerPage = 5; 
   const [value, setValue] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
@@ -68,11 +69,16 @@ export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
         {columns.map((col, i) => (
           <td key={i}>{getNestedValue(rowData, col.key)}</td>
         ))}
-        {onEdit || onDelete ? (
+        {onEdit || onDelete || onEditVariant ? (
           <td className="flex gap-4">
             {onEdit && (
               <button onClick={() => onEdit?.(rowData._id)} className="btn-warning-outline">
                 Editar
+              </button>
+            )}
+            {onEditVariant && (
+              <button onClick={() => onEditVariant?.(rowData._id)} className="btn-success-outline">
+                Editar variantes
               </button>
             )}
             {onDelete && (
@@ -106,7 +112,7 @@ export default function Table({ data, columns, onEdit, onDelete }: TableProps) {
             {columns.map((col) => (
               <th key={col.key}>{col.label}</th>
             ))}
-            {(onEdit || onDelete) && <th></th>}
+            {(onEdit || onDelete || onEditVariant) && <th></th>}
           </tr>
         </thead>
         <tbody>

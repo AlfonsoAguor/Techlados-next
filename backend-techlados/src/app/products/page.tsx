@@ -2,21 +2,24 @@
 
 import { useEffect, useState } from 'react'
 import axios, {AxiosError} from "axios"
+import { useRouter } from 'next/navigation';
 import Swal from "sweetalert2"
 import Link from 'next/link'
 import React from 'react'
-import { useUser } from '@/context/UserContext'
 import Table from '@/components/Table'
+
+import { useUser } from '@/context/UserContext'
 import { Product } from '../../../types/product'
-import { useProduct } from '@/context/ProductContext'
+import { Variant } from '../../../types/variant'
 
 function ProductPage() {
 
   const { userData } = useUser();
   const userId = userData?._id;
+  const router = useRouter();
 
   //const { productsData, setProductsData } = useProduct(); De este modo es para obtener unicamente los datos
-  const [productsData, setProductsData] = useState<Product[] | any>([]); // De este modo cuando se hace cambios de estado
+  const [ productsData, setProductsData ] = useState<Product[] | any>([]); // De este modo cuando se hace cambios de estado
 
   const [ newError, setNewError ] = useState<{ path?: string[], message: string }[]>([]);
 
@@ -44,6 +47,10 @@ function ProductPage() {
     console.log("Eliminar: ", id);
   }
 
+  const handleEditVariantProp = async (id: any) =>{
+    router.push(`/products/variant/${id}`)
+  }
+
   return (
     <div className='mt-2'>
       <Link href={'/products/new'} className='btn-info'>Añadir un nuevo producto</Link>
@@ -54,6 +61,7 @@ function ProductPage() {
           columns={[{ key:"name", label:"Nombre" }, {key:"brand.name", label: "Marca"}]}
           onEdit={handleEditProp}
           onDelete={handleDeleteProp}
+          onEditVariant={handleEditVariantProp}
         />
       </div>
     </div>
