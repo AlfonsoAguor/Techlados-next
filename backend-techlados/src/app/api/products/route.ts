@@ -2,6 +2,7 @@ import { connectDB } from "@/libs/mongodb";
 import { NextResponse } from "next/server";
 import { productSchema } from "@/schema/productSchema";
 import { Product } from "@/models/product";
+import "@/models/brand";
 
 export async function POST(req: Request) {
     await connectDB();

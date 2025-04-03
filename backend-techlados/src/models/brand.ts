@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const BrandSchema = new Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
     },
     category: [{
         type: mongoose.Types.ObjectId, 

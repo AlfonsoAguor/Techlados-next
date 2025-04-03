@@ -13,15 +13,16 @@ export async function DELETE(req: Request, { params }: { params: { id: string } 
         const authResult = await authMiddleware(req, { id: userId });
 
         if("success" in authResult && authResult?.success){
+            console.log("Pasamos el auth");
             await Product.findByIdAndDelete(id);
-            return NextResponse.json({ message: "Categoria eliminada" }, { status: 200 });
+            return NextResponse.json({ message: "Producto eliminado" }, { status: 200 });
         }
 
         return NextResponse.json(authResult);
 
     } catch (error) {
         console.error(error);
-        return NextResponse.json({ message: "Error fetching user data" }, { status: 500 });
+        return NextResponse.json({ message: "Error fetching product data" }, { status: 500 });
     }
     
 }

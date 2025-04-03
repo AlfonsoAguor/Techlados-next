@@ -4,7 +4,7 @@ import mongoose from "mongoose";
 const PropertySchema = new Schema({
     name: {
         type: String,
-        require: true,
+        required: true,
     },
     values: [{
         type: String
