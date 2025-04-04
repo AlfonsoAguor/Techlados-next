@@ -93,7 +93,7 @@ function ProductPage() {
           <h2 className="my-4">Listado de productos</h2>
           <Table
             data={productsData}
-            columns={[{ key:"name", label:"Nombre" }, {key:"brand.name", label: "Marca"}]}
+            columns={[{ key:"name", label:"Nombre" }, {key:"brand.name", label: "Marca"}, {key: "price", label: "Precio"}]}
             onEdit={handleEditProp}
             onDelete={handleDeleteProp}
             onEditVariant={handleEditVariantProp}

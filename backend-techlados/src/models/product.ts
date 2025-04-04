@@ -24,6 +24,10 @@ const ProductSchema = new Schema({
         type: String,
         default: "default.png",
     }],
+    price: {
+        type: Number,
+        default: 0
+    },
     specifics: {
         type: String,
         require: true

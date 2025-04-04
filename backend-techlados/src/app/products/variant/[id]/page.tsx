@@ -19,9 +19,10 @@ function EditVariant() {
 
   const [ propertyNames, setPropertyNames ] = useState([]);
 
-  const [updatedVariants, setUpdatedVariants] = useState<{ [key: string]: { price: number; stock: number } }>({});
+  const [ updatedVariants, setUpdatedVariants ] = useState<{ [key: string]: { price: number; stock: number } }>({});
 
-  const [newError, setNewError] = useState<{ path?: string[]; message: string }[]>([]);
+  const [ newError, setNewError ] = useState<{ path?: string[]; message: string }[]>([]);
+  const [ showMessage, setShowMessage ] = useState(false);
 
   /* Fetch de Variant y Product */
   useEffect(() => {
@@ -87,6 +88,7 @@ function EditVariant() {
     }
   },[variantsInProduct])
 
+  /* Funcion para editr lo valores de stock y precio */
   const handleEdit = (variantId: string, field: "price" | "stock", value: number) => {
     setUpdatedVariants((prev) => ({
       ...prev,
@@ -97,18 +99,43 @@ function EditVariant() {
     }));
   };
 
+  /* Submit */
   const handleSubmit = async(id: string) => {
     try {
-      await axios.put(`/api/variant/product/${id}`, updatedVariants[id], {
+      const res = await axios.put(`/api/variant/product/${id}`, updatedVariants[id], {
         headers: { "X-User-Id": userId },
       });
-    } catch (error) {
-      alert("Error al actualizar la variante");
+
+      if(res.status){
+        axios.put(`/api/products/${product._id}`, { updatedVariants }, {
+          headers: { "X-User-Id": userId },
+        });
+      }
+
+    } catch (error: any) {
+      if (error instanceof AxiosError) {
+        setNewError(error.response?.data.error || []);
+        setShowMessage(true);
+      }
     }
   }
+
+  /* UseEffect de errores */
+  useEffect(() => {
+    if(showMessage){
+      const timer = setTimeout(() => {setShowMessage(false)}, 2000);
+      return () => clearTimeout(timer);
+    }
+  },[newError, showMessage]);
   
   return (
     <>
+      {showMessage && newError.map((err) => (
+        <div key={err.path?.[0] || err.message} className="fixed left-1/2 transform -translate-x-1/2 top-12 bg-red-500 text-white py-3 px-5 rounded-md">
+          {err.message}
+        </div>
+      ))}
+
       {variantsInProduct.length > 0 ? (
         <div>
           <h2 className="mb-4">Variantes de {product.name}</h2>
@@ -151,7 +178,6 @@ function EditVariant() {
             </tbody>
           </table>
 
-          
         </div>
       ) : (
         <div>No hay variantes para {product.name}</div>
