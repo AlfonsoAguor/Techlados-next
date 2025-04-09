@@ -7,6 +7,7 @@ import { useParams } from "next/navigation"
 import { useUser } from "@/context/UserContext"
 import { Variant } from "../../../../../types/variant"
 import { Product } from "../../../../../types/product"
+import Link from "next/link"
 
 function EditVariant() {
   const params = useParams();
@@ -107,7 +108,8 @@ function EditVariant() {
       });
 
       if(res.status){
-        axios.put(`/api/products/${product._id}`, { updatedVariants }, {
+        console.log("Variantes actualizadas: ", updatedVariants)
+        axios.put(`/api/products/price/${product._id}`, { updatedVariants }, {
           headers: { "X-User-Id": userId },
         });
       }
@@ -177,7 +179,10 @@ function EditVariant() {
               ))}
             </tbody>
           </table>
-
+          <div className="mt-4 flex gap-3">
+            <Link href={`/products/edit/${product._id}`} className="btn-warning-outline">Editar {product.name}</Link>
+            <Link href={`/products`} className="btn-info-outline">Ver productos</Link>
+          </div>
         </div>
       ) : (
         <div>No hay variantes para {product.name}</div>

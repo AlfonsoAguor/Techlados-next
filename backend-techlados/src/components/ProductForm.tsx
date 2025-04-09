@@ -4,17 +4,16 @@ import React, { FormEvent, useEffect, useState } from 'react'
 import axios, { AxiosError } from 'axios';
 import { ReactSortable } from 'react-sortablejs';
 import { useUser } from '@/context/UserContext';
-import { useProduct } from '@/context/ProductContext';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
-export default function ProductForm() {
+import { Variant } from '../../types/variant';
+
+export default function ProductForm({productId }: {productId?: string}) {
   const { userData } = useUser();
   const userId = userData?._id;
   const router = useRouter();
 
-  const { productData, setProductData } = useProduct();
-
-  const [ product, setProduct ] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [specifics, setSpecifics] = useState('');
@@ -30,6 +29,10 @@ export default function ProductForm() {
   const [ propInCat, setPropInCat ] = useState<any[]>([]); // Almacenamos las propiedades de la categoria seleccionada
   const [ selectedCat, setSelectedCat ] = useState(""); // Categoria Seleccionada
   const [ selectedVal, setSelectedVal ] = useState<Record<string, string[]>>({});
+
+  const [ variantsInProduct, setVariantsInProduct ] = useState<Variant[] | any>([]);
+  const [ propertyNames, setPropertyNames ] = useState([]);
+  const [ productChanged, setProductChanged ] = useState(true);
 
   /* Fetch categorias y marcas */
   useEffect(() => {
@@ -54,31 +57,86 @@ export default function ProductForm() {
     
   }, []);
 
-  /* Fetch de categoria en la marca seleccionada */
-  const fetchBrand = async (id: any) => {
+  /* Fetch del producto a editar y de las variantes */
+  useEffect(() => {
+    if (!productId) return;
     
+    const fetchProduct = async(id: any) => {
+      const resProd = await axios.get(`/api/products/${id}`, {
+        headers: {
+          "X-User-Id": userId,
+        }
+      })
+      setName(resProd.data.data.name)
+      setDescription(resProd.data.data.description)
+      setSpecifics(resProd.data.data.specifics)
+      setImages(resProd.data.data.images)
+      setSelectBrand(resProd.data.data.brand)
+      setSelectedCat(resProd.data.data.category)
+      setSelectedVal(resProd.data.data.properties)
+      
+      fetchBrand(resProd.data.data.brand, true)
+      fetchCategory(resProd.data.data.category, true)
+    }
+
+    const fetchProdInVariant = async(id: any) => {
+      const resVarInPro = await axios.get(
+        `/api/variant/product/${id}`,
+        {
+          headers: {
+            "X-User-Id": userId,
+          },
+        }
+      );
+
+      setVariantsInProduct(resVarInPro.data.data);
+    }
+
+    if(productChanged) {
+      fetchProduct(productId)
+      fetchProdInVariant(productId)
+      setProductChanged(false)
+    }
+  }, [productId ?? "", productChanged])
+
+  useEffect(() => {
+    if(variantsInProduct.length > 0 ){
+      const properties = variantsInProduct[0]?.properties.map((property: any)=> property.name);
+      setPropertyNames(properties);
+    }
+  },[variantsInProduct])
+
+  /* Fetch de categoria en la marca seleccionada */
+  const fetchBrand = async (id: any, isEdit = false) => {
     const res = await axios.get(`/api/brands/${id}`, {
       headers: {
           "X-User-Id": userId,
       }
     });
     setSelectBrand(id); // Guardamos la marca seleccionada
+
+    if(!isEdit){
     setSelectedCat(""); // Eliminamos la categoria seleccionada
     setSelectedVal({}); // Eliminamos los valores seleccionados
     setPropInCat([]); // Vaciamos las propiedades de la categoria
+    }
+
     setCatInBrand(res.data.data.category);
   }
 
   /* Fetch de propiedades en la categoria seleccionada */
-  const fetchCategory = async (id: any) => {
+  const fetchCategory = async (id: any, isEdit = false) => {
     const res = await axios.get(`/api/categories/${id}`, {
       headers: {
            "X-User-Id": userId,
       }
     });
-    setSelectedVal({});
+
+    if(!isEdit){
+      setSelectedVal({});
+    }
+    
     setSelectedCat(id);
-    setPropInCat([]);
     setPropInCat(res.data.data.properties);
   }
 
@@ -96,7 +154,7 @@ export default function ProductForm() {
     });
   };
 
-  /* Funcion crear producto */
+  /* Funcion crear y editar producto */
   const createProduct = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
@@ -113,22 +171,41 @@ export default function ProductForm() {
         properties: selectedVal
       }
 
-      const res = await axios.post('/api/products', data);
+      if(!productId){
+        /* Crear */
+        const res = await axios.post('/api/products', data);
 
-      if(res.status === 200){
-        /*setName(""); setDescription(""); setSpecifics(""); setImages([]);
-        setSelectBrand(""); setSelectedCat(""); setSelectedVal({});*/
-        let idProd = res.data.data._id;
-
-        const dataVariant = {
-          id: idProd,
-          properties: selectedVal
+        if(res.status === 200){
+          let idProd = res.data.data._id;
+  
+          const dataVariant = {
+            id: idProd,
+            properties: selectedVal
+          }
+  
+          const resVariant = await axios.post('/api/variant/create', dataVariant );
+  
+          if(resVariant.status === 200){
+            router.push('/products')
+          }
         }
+      } else {
+        /* Actualizar */
+        //Actualizamos primero producto
+        const res = await axios.put(`/api/products/${productId}`, data, {
+          headers: {
+               "X-User-Id": userId,
+          }
+        });
 
-        const resVariant = await axios.post('/api/variant/create', dataVariant );
-
-        if(resVariant.status === 200){
-          router.push('/products')
+        if(res.status === 200){
+          // Si todo ha ido bien, actualizamos las variantes
+          const dataVariant = {
+            id: productId,
+            properties: selectedVal
+          }
+          await axios.put('/api/variant/update', dataVariant );
+          setProductChanged(true)
         }
       }
 
@@ -137,7 +214,6 @@ export default function ProductForm() {
     } catch (error) {
       setShowMessage(true);
       if (error instanceof AxiosError) {
-        console.log("Nuevo error: ", newError);
         setNewError(error.response?.data.error || "Error desconocido");
       }
     }
@@ -196,6 +272,36 @@ export default function ProductForm() {
         <textarea name='specifics' className="input-default" value={specifics} onChange={e => setSpecifics(e.target.value)} />
       </div>
 
+      {/* Variantes*/}
+      {variantsInProduct.length > 0 && (
+        <div>
+        <label className="label-bold block my-3">Variantes</label>
+        <table className="basic">
+              <thead>
+                <tr>
+                  {propertyNames.map((prop: any) => (
+                    <th key={prop}>{prop}</th>
+                  ))}
+                  <th>Precio</th>
+                  <th>Cantidad</th>
+                </tr>
+              </thead>
+              <tbody>
+                {variantsInProduct.map((variant: any) => (
+                  <tr key={variant._id}>
+                    {variant.properties.map((prop: any) => (
+                      <td key={prop._id}>{prop.value}</td>
+                    ))}
+                    <td>{variant.price}</td>
+                    <td>{variant.stock}</td>
+                  </tr>
+                ))}
+              </tbody>
+        </table>
+        <Link href={`/products/variant/${productId}`} className="btn-warning-outline flex justify-center my-5 w-40"> Editar Variantes </Link>
+      </div>
+      )}
+      
       {/* Imagenes */}
       <div className="mb-4">
         <label className="label-bold">Imagenes</label>
@@ -229,7 +335,7 @@ export default function ProductForm() {
       <div className='flex flex-col w-1/3'>
         <label className="label-bold">Marca</label>
         {brands.length > 0 ? (
-          <select onChange={(e => fetchBrand(e.target.value))} className='input-default'>
+          <select onChange={(e => fetchBrand(e.target.value))} className='input-default' value={selectBrand}>
               <option value={""}>Seleccione marca</option>
             {brands.map((brand) => (
               <option key={brand._id} value={brand._id}>{brand.name}</option>
@@ -240,10 +346,10 @@ export default function ProductForm() {
         )}
         
         {/* Mostrar categorias */}
-        {catInBrand && catInBrand.length > 0 &&(
+        {selectBrand &&(
           <div>
             <label className="label-bold">Categorias</label>
-            <select onChange={(e => fetchCategory(e.target.value))} className='input-default'>
+            <select onChange={(e => fetchCategory(e.target.value))} className='input-default' value={selectedCat}>
               <option value={""}>Seleccione categoria</option>
               {catInBrand.map((cat) => (
                 <option key={cat._id} value={cat._id}>{cat.name}</option>
@@ -253,7 +359,7 @@ export default function ProductForm() {
         )}
 
         {/* Mostrar propiedades */}
-        {propInCat && propInCat.length > 0 && (
+        {selectedCat && (
           <div>
             <label className="label-bold">Propiedades</label>
             {propInCat.map((prop) => (
@@ -279,9 +385,10 @@ export default function ProductForm() {
         )}
       </div>
 
-      <button type="submit" className="btn-info w-25">
-        Guardar
-      </button>
+      <div className='flex gap-3'>
+        <button type="submit" className="btn-success-outline">Guardar</button>
+        <Link href={`/products`} className="btn-info-outline">Ver productos</Link>
+      </div>
     </form>
   );
 }

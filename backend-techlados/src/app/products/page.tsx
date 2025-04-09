@@ -44,7 +44,7 @@ function ProductPage() {
   }, [changedProd])
 
   const handleEditProp = async (id: any) => {
-    console.log("Editar: ", id);
+    router.push(`/products/edit/${id}`)
   }
 
   const handleDeleteProp = async (id: any) =>{

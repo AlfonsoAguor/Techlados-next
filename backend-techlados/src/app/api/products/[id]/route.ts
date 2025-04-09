@@ -2,6 +2,7 @@ import { connectDB } from "@/libs/mongodb";
 import { NextResponse } from "next/server";
 import { Product } from "@/models/product";
 import { authMiddleware } from "@/middleware/auth";
+import { productSchema } from "@/schema/productSchema";
 
 
 export async function DELETE(req: Request, { params }: { params: { id: string } }) {
@@ -54,26 +55,21 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
         const { id } = await params;
         const userId = req.headers.get("x-user-id");
         const body = await req.json();
-        const { updatedVariants } = body;
+        const validatedData = productSchema.parse(body);
+        const {name, description, specifics, images, brand, category, properties} = validatedData;
         const authResult = await authMiddleware(req, {id: userId});
 
         /* Funcion para almacenar el menor precio */
-        if("success" in authResult && authResult?.success && updatedVariants){
-            let minPrice = Infinity;
-
-            Object.keys(updatedVariants).map(async(id) => {
-                const { price } = updatedVariants[id]; 
-                if(minPrice > price){
-                    minPrice = price;
-                }
+        if("success" in authResult && authResult?.success){
+            await Product.findByIdAndUpdate(id, {
+                name, description, specifics, images, brand, category, properties
             })
-            await Product.findByIdAndUpdate(id, {price: minPrice});
 
-            return NextResponse.json({status: 200});
+            return NextResponse.json({status: 200})
         }
 
         return NextResponse.json(authResult);
-    } catch (error) {
-        return NextResponse.json({ message: "Error update product data" }, { status: 500 });
+    } catch (error: any) {
+        return NextResponse.json({ error: error.errors }, { status: 400 });
     }
 }
