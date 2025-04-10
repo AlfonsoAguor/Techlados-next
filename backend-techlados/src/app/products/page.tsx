@@ -10,7 +10,6 @@ import Table from '@/components/Table'
 
 import { useUser } from '@/context/UserContext'
 import { Product } from '../../../types/product'
-import { Variant } from '../../../types/variant'
 
 function ProductPage() {
 

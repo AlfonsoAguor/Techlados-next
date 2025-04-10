@@ -6,6 +6,7 @@ import { ReactSortable } from 'react-sortablejs';
 import { useUser } from '@/context/UserContext';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import XMark from './XMark';
 
 import { Variant } from '../../types/variant';
 
@@ -239,6 +240,22 @@ export default function ProductForm({productId }: {productId?: string}) {
     setImages(images);
   }
 
+  /* Elimianr imagen */
+  const handleDeleteImage = async (img: any) => {
+    try {
+      await axios.delete("/api/upload", {
+        data: {
+          file: img,
+        },
+      });
+
+      setImages((prev) => prev.filter((image) => image !== img));
+    } catch (error) {
+      console.error("Error al eliminar la imagen:", error);
+    }
+  };
+  
+
   /* UseEffect de errores */
   useEffect(() => {
     if(showMessage){
@@ -310,6 +327,7 @@ export default function ProductForm({productId }: {productId?: string}) {
           {!!images?.length &&
             images.map((filePath) => (
               <div key={filePath} className="inline-block h-24 mt-4 mx-2">
+                <button className='absolute z-10 bg-slate-50 rounded-full shadow-xl' onClick={() => handleDeleteImage(filePath)}><XMark /></button>
                 <img src={`/uploads/${filePath}`} className="rounded-lg drop-shadow-lg h-24"/>
               </div>
             ))}
