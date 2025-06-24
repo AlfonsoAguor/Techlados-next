@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Botones */
+/* Estilos para botones */
+.btn-info{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-blue-500 text-white hover:bg-blue-700 duration-300
+}
+
+.btn-white{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-white text-black hover:bg-gray-300 duration-300
+}
+
+.btn-default{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-gray-400 text-white hover:bg-gray-500 duration-300
+}
+
+.btn-warning{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg bg-yellow-500 text-white hover:bg-yellow-600 duration-300
+}
+
+.btn-danger{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-red-500 text-white hover:bg-red-700 duration-300
+}
+
+.btn-success{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg bg-green-500 text-white hover:bg-green-700 duration-300
+}
+
+.btn-default-outline{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg border border-gray-400 text-gray-400 hover:border-gray-500 hover:text-gray-500 duration-300
+}
+
+.btn-white-outline{
+    @apply px-4 py-2 rounded-md font-bold shadow-lg border border-white text-white hover:border-gray-300 hover:text-gray-300 duration-300
+}
+
+.btn-info-outline{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-blue-500 text-blue-500 hover:border-blue-700 hover:text-blue-700 hover:bg-gray-100 duration-300
+}
+
+.btn-warning-outline{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-yellow-500 text-yellow-500 hover:border-yellow-600 hover:text-yellow-600 hover:bg-gray-100 duration-300
+}
+
+.btn-danger-outline{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-red-500 text-red-500 hover:border-red-700 hover:text-red-700 hover:bg-gray-100 duration-300
+}
+
+.btn-success-outline{
+    @apply px-4 py-2 mt-2 rounded-md font-bold shadow-lg border border-green-500 text-green-500 hover:border-green-700 hover:text-green-700 hover:bg-gray-100 duration-300
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"]{
+    @apply bg-gray-700 px-4 py-2 block mb-4 w-full rounded-md shadow-lg text-gray-200
+}
+
+.input-default[type="text"],
+.input-default[type="password"]{
+    @apply bg-gray-300 px-4 py-2 block mb-4 w-full rounded-md shadow-lg text-gray-600
+}
+
+.input-default[type="text"]:focus{
+    @apply text-gray-800
+}
+
+.border-decoration{
+    @apply border border-gray-600
+}
+
+/*Menu*/
+.headerStyle{
+    @apply bg-[#222]
+}
+
+.menuStyle{
+    @apply text-[#aaa]
+}
+
+.menuStyleResponsive{
+    @apply block mx-2 px-4 py-2 text-[#aaa] rounded-md hover:bg-black
+}
