@@ -9,7 +9,7 @@ import { signOut } from "next-auth/react";
 import Swal from 'sweetalert2';
 
 import { Center } from '@/components/Center';
-import PasswordToggleIcon from '@/components/PasswordToggleIcon';
+import PasswordToggleIcon from '@/components/Icons/PasswordToggleIcon';
 
 interface User{
   _id: string,

@@ -3,7 +3,6 @@ import mongoose from "mongoose";
 
 const uri = process.env.NEXT_PUBLIC_MONGO_DB_BACK;
 if (!uri) throw new Error("MONGO_DB_BACK not defined");
-console.log("Uri back", uri);
 
 let cached = (global as any).mongooseBack;
 

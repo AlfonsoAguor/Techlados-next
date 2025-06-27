@@ -34,7 +34,7 @@ export const ProductProvider = ({ children }: {children: ReactNode}) => {
       const res = await axios.get("/api/product");
       setProductData(res.data);
       const resData = await axios.get("/api/product/iphone");
-      setIphoneData(resData.data);
+      setIphoneData(resData.data[0]);
     } catch (error) {
       return NextResponse.json({ message: "Error fetching product data", error: error}, {status: 500});
     }

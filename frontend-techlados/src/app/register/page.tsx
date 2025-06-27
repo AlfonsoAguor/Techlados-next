@@ -5,7 +5,7 @@ import { FormEvent, useState, useEffect } from "react"
 import axios, {AxiosError} from "axios";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import PasswordToggleIcon from "@/components/PasswordToggleIcon";
+import PasswordToggleIcon from "@/components/Icons/PasswordToggleIcon";
 
 function RegisterPage() {
   const [ error, setError ] = useState();

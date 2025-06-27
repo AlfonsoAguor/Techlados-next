@@ -9,6 +9,12 @@ import Table from "@/components/Table";
 import ChevronUp from "@/components/ChevronUp";
 import ChevronDowns from "@/components/ChevronDown";
 
+interface PropertyData {
+  _id: string;
+  name: string;
+  value: string[];
+}
+
 export default function CategoryPage() {
   const { userData } = useUser();
   const userId = userData?._id;
@@ -47,7 +53,6 @@ export default function CategoryPage() {
 
     fetchCat();
   }, [catChanged]);
-
 
   useEffect(() => {
     const fetchProp = async () => {
@@ -131,10 +136,11 @@ export default function CategoryPage() {
         "X-User-Id": userId,
       },
     });
+  
 
     setCategory(result.data.data);
     setName(result.data.data.name);
-    setSelectedProp(result.data.data.properties);
+    setSelectedProp(result.data.data.properties.map((p: any) => p._id || p));
 
     setCatChanged(true);
   };
@@ -298,7 +304,7 @@ export default function CategoryPage() {
 
         <div>
         <label className="label-bold">Seleccione propiedades:</label><br/>
-        {properties.map((property) => (
+{properties.map((property) => (
           <label key={property._id} className="mr-6">
             <input
               type="checkbox"

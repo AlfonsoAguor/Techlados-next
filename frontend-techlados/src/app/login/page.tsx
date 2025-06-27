@@ -3,7 +3,7 @@ import { FormEvent, useState, useEffect } from "react";
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import PasswordToggleIcon from "@/components/PasswordToggleIcon";
+import PasswordToggleIcon from "@/components/Icons/PasswordToggleIcon";
 
 function LoginPage() {
   const [error, setError] = useState("");
